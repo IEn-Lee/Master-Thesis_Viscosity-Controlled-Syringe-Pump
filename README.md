@@ -196,17 +196,3 @@ The project followed a complete model-to-hardware development process:
 - Quantitative validation
 
 ---
-
-## Repository Structure
-
-```text
-Master-Thesis_Viscosity-Controlled-Syringe-Pump/
-│
-├── README.md
-├── figures/
-│   └── selected figures and system diagrams
-├── code/
-│   └── selected software and analysis files
-├── docs/
-│   └── supporting technical documentation
-└── ...
