@@ -6,6 +6,12 @@ Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU)
 Institute for Factory Automation and Production Systems (FAPS)  
 2026
 
+**Thesis grade: 1.0 (highest possible grade in the German grading system)**  
+**Recognition: Outstanding Master's Thesis** — [View certificate](https://github.com/IEn-Lee/Master-Thesis_Viscosity-Controlled-Syringe-Pump/blob/main/Certificate%20Outstanding%20Master's%20Thesis_Lee.pdf)
+
+> **RheoPilot | James Dyson Award 2026**  
+> **[Explore the RheoPilot project on the James Dyson Award website →](https://www.jamesdysonaward.org/en-US/2026/project/rheopilot)**
+
 ---
 
 ## Overview
@@ -77,16 +83,16 @@ A simplified syringe–cannula model was developed to relate:
 
 For an idealized Newtonian flow through the cannula, the Hagen–Poiseuille relation was used as a first-order description of the pressure loss:
 
-\[
+$$
 \Delta p_c = \frac{8 \mu L_c Q}{\pi r_c^4}
-\]
+$$
 
 where:
 
-- \( \mu \) = dynamic viscosity
-- \( L_c \) = cannula length
-- \( Q \) = volumetric flow rate
-- \( r_c \) = cannula inner radius
+- $\mu$ = dynamic viscosity
+- $L_c$ = cannula length
+- $Q$ = volumetric flow rate
+- $r_c$ = cannula inner radius
 
 The model was used to support actuator and motion-parameter selection rather than as an exact transient pressure predictor.
 
@@ -163,6 +169,7 @@ The project followed a complete model-to-hardware development process:
 ## Technical Areas
 
 ### Mechanical & Mechatronic Systems
+
 - CAD and mechanical design
 - Precision actuation
 - DFM / DfAM
@@ -171,6 +178,7 @@ The project followed a complete model-to-hardware development process:
 - Mechanical integration
 
 ### Control & Embedded Systems
+
 - Embedded C/C++
 - Stepper-motor control
 - Model-based open-loop compensation
@@ -180,6 +188,7 @@ The project followed a complete model-to-hardware development process:
 - LVGL graphical interface
 
 ### Modeling & Computation
+
 - Python
 - Fluid-mechanical modeling
 - Viscosity-dependent system modeling
@@ -188,6 +197,7 @@ The project followed a complete model-to-hardware development process:
 - Model-based parameter estimation
 
 ### Experimental Engineering
+
 - Biomedical device prototyping
 - Fluid handling
 - Calibration
