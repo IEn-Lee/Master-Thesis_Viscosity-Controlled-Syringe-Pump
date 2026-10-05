@@ -7,8 +7,9 @@ Institute for Factory Automation and Production Systems (FAPS)
 2026
 
 **Thesis grade: 1.0 (highest possible grade in the German grading system)**  
-**Full master's thesis:** The complete thesis is available as a PDF in this repository [Full master's thesis](https://github.com/IEn-Lee/Master-Thesis_Viscosity-Controlled-Syringe-Pump/blob/main/Master_s%20Thesis.pdf). If GitHub fails to display the PDF preview, please download the file and open it locally.
 **Recognition: Outstanding Master's Thesis** — [View certificate](https://github.com/IEn-Lee/Master-Thesis_Viscosity-Controlled-Syringe-Pump/blob/main/Certificate%20Outstanding%20Master's%20Thesis_Lee.pdf)
+**Full master's thesis:** The complete thesis is available as a PDF in this repository [Full master's thesis](https://github.com/IEn-Lee/Master-Thesis_Viscosity-Controlled-Syringe-Pump/blob/main/Master_s%20Thesis.pdf). 
+*If GitHub fails to display the PDF preview, please download the file and open it locally.*
 
 > **RheoPilot | James Dyson Award 2026**  
 > **[Explore the RheoPilot project on the James Dyson Award website](https://www.jamesdysonaward.org/en-US/2026/project/rheopilot)**
