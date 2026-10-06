@@ -37,63 +37,60 @@ The investigated fluids spanned approximately **1–60,000 mPa·s**, from water 
 
 ## Why This Research Was Needed
 
-RheoPilot originated from a medical-device research challenge: precisely filling an internal component of an intraurethral implant with high-viscosity oil through a narrow cannula. The task required accurate small-volume delivery, repeatable syringe positioning, controlled mechanical loading, and a practical laboratory workflow.
+RheoPilot originated from a specific medical-device research problem: filling an internal component of an intraurethral implant with high-viscosity oil through a narrow cannula. This task requires a combination of accurate small-volume delivery, repeatable syringe positioning, manageable mechanical loading, and a practical laboratory workflow.
 
-**Accurate plunger movement alone does not guarantee accurate delivery at the outlet.** Under high-viscosity conditions, hydraulic resistance, syringe compliance, plunger friction, structural deformation, and delayed outflow can cause the delivered volume to differ from the volume calculated from actuator displacement.
+**Accurate plunger positioning alone does not guarantee accurate delivery at the outlet.** Under high-viscosity loading, syringe compliance, friction, structural deformation, and delayed outflow can change the relationship between commanded motion and delivered volume. In the thesis experiments, the uncompensated setting produced a mean absolute volumetric deviation of **30.31% at 60,000 mPa·s**, despite relatively consistent repeated trials. This made application-specific compensation necessary.
 
-In the thesis experiments, the uncompensated setting produced a mean absolute volumetric deviation of **30.31% at 60,000 mPa·s**, despite relatively consistent repeated trials. This indicated a systematic process deviation that required application-specific compensation.
+The equipment-selection challenge was to combine syringe-based operation with viscosity-dependent process planning and experimental flexibility. The thesis identified the following gap between existing approaches and the intended filling workflow:
 
-### The Gap Between Existing Approaches
-
-The thesis examined three types of existing filling approaches in relation to the intended application:
-
-| Existing approach | Relevant capability | Additional requirement for this research |
+| Approach considered in the thesis | Relevant capability | Additional need for this application |
 |---|---|---|
-| **Conventional syringe pumps** | Programmable syringe actuation based on volume, flow rate, and syringe geometry. | Compensation for viscosity-dependent behavior, mechanical compliance, and delayed release in the specific syringe–cannula setup. |
-| **Industrial high-viscosity dispensers** | Specialized metering of viscous materials. | Compatibility with the specified disposable 2 mL syringe and small-cannula implant-filling workflow. |
-| **Manual or semi-automated filling** | Flexible operation during laboratory preparation and early development. | More reproducible actuation, documented process settings, and standardized post-extrusion handling. |
+| Conventional syringe pumps | Programmable plunger motion using syringe geometry, volume, and flow settings. | Compensation for the specific syringe–cannula system under high-viscosity loading, including delayed release. |
+| Industrial viscous-material dispensers | Specialized metering of viscous materials. | Integration with the specified disposable 2 mL syringe and small-cannula implant-filling procedure. |
+| Manual or semi-automated filling | Flexible preparation and operator intervention. | More reproducible actuation and post-extrusion handling, with traceable process settings. |
 
-*This comparison summarizes the application-specific assessment in thesis Section 3.2 and Table 1, rather than an exhaustive comparison of all commercial products.*
+*This comparison summarizes the application-specific assessment in thesis Section 3.2 and Table 1; it is not an exhaustive benchmark of all commercial products.*
 
-The research therefore aimed to bring **syringe-based operation, viscosity-dependent compensation, modular hardware, and guided control** together in a compact laboratory platform.
+The resulting research objective was to develop an integrated **actuator–structure–fluid platform** that connects volume and viscosity inputs to motion planning, calibrated compensation, operator guidance, and quantitative validation.
+
+### Why a Small Outlet Matters
+
+<p align="center">
+  <img src="Images/11_Small_Outlet_Scale.png" alt="Visual scale comparison between a 0.5 mm mechanical-pencil lead and the RheoPilot cannula outlet" width="900">
+</p>
+
+*Small-outlet scale comparison. The approximately 0.5 mm outlet scale is illustrated alongside a mechanical-pencil lead. This is a visual scale reference rather than a dimensional measurement.*
+
+<p align="center">
+  <img src="Images/12_Implant_Filling_Context.png" alt="Cannula positioned at the filling interface of a small transparent implant component held between gloved fingers" width="720">
+</p>
+
+*Application context: cannula-based access to a small implant component. Image provided by the author; UroPro image credit: Alexander Preis, FAU FAPS.*
+
+Small components can offer only a restricted filling interface. A narrow cannula provides localized access, but it also increases the resistance encountered by the fluid. Increasing the outlet size may therefore be incompatible with the component geometry or the required filling procedure.
+
+For the idealized flow model used in this thesis, pressure loss scales with the inverse fourth power of the cannula radius. **Halving the radius increases the predicted pressure demand sixteenfold at the same viscosity, cannula length, and flow rate.** This makes a small outlet an important process constraint rather than merely a geometric detail.
+
+RheoPilot addresses this constraint by relating viscosity and flow-path geometry to motion planning, then applying calibrated compensation for the actual syringe–cannula system. The objective is to deliver a defined volume through the required access point while accounting for mechanical loading and delayed material response.
 
 ## What Makes RheoPilot Different
 
-**RheoPilot combines application-specific fluid modeling and calibration with an adaptable desktop device.** Its distinguishing value lies in how its mechanical design, embedded software, and operating procedure work together.
+**RheoPilot combines viscosity-dependent compensation with a compact, modular, standalone syringe-based workflow.** Its distinguishing feature is the combination of functions around the investigated filling task.
 
-### 1. Viscosity-Aware Dispensing
+| Design feature | Practical value |
+|---|---|
+| **Viscosity-dependent motion planning and compensation** | Converts the filling task into motion settings that account for modeled loading and experimentally observed delivery deviations. |
+| **Disposable-syringe compatibility** | Integrates the specified 2 mL syringe and Luer Lock cannula into a repeatable filling setup. |
+| **Guided standalone operation** | Routine operation starts from target volume and viscosity; the embedded controller handles calculations, interface guidance, and motor commands on the device. |
+| **Modular, fabrication-oriented construction** | Standard components and replaceable printed parts support assembly, modification, and iterative development. |
+| **Advanced configuration access** | Exposes relevant setup parameters for research, while routine users interact with a simpler interface. |
+| **Defined post-extrusion release** | Includes contact-element retraction and a standardized waiting step to address the delayed response of high-viscosity oils. |
 
-Target volume and fluid viscosity are used to prepare the motion command. The physical model informs operating constraints, while experimentally calibrated compensation addresses differences between ideal plunger displacement and actual delivered volume.
+The [RheoPilot project page on the James Dyson Award website](https://www.jamesdysonaward.org/en-US/2026/project/rheopilot) estimates **prototype parts costs of approximately €300–450**. This is a parts estimate, not a commercial selling price or a like-for-like comparison with a complete supported dispensing system.
 
-A monotonic interpolation map estimates compensation settings between calibrated viscosities. At the nominal **40,000 mPa·s** validation condition, all five trials met the **±1% volumetric tolerance** without additional manual retuning.
+The design supports adaptation of the syringe holder and outlet arrangement. **Each changed configuration would require appropriate calibration and validation**; the performance results below apply to the tested setup.
 
-### 2. Guided, Standalone Operation
-
-Routine operation focuses on **two main inputs: target volume and fluid viscosity**. The embedded controller performs the calculations, controls the motor, and provides touchscreen guidance directly on the device.
-
-Advanced settings remain available for research and configuration. Confirmation dialogs, process-state displays, and protected controls support a repeatable operating sequence.
-
-### 3. Modular Hardware and Practical Fabrication
-
-The platform combines standard components, a disposable syringe, custom motor-driver electronics, and replaceable 3D-printed parts.
-
-DFM and DfAM considerations support practical assembly and modification, including a quick-release syringe holder, tolerance-aware contact interfaces, and modular mechanical connections. Researchers can adapt the hardware to their experimental requirements, followed by appropriate recalibration and validation.
-
-### 4. Accessible Prototype Construction
-
-The [RheoPilot project page on the James Dyson Award website](https://www.jamesdysonaward.org/en-US/2026/project/rheopilot) reports estimated **prototype parts costs of approximately €300–450**.
-
-This construction approach supports the goal of making configurable high-viscosity dispensing more accessible to research laboratories. The estimate refers to prototype parts, rather than a commercial selling price or the total cost of development and validation.
-
-### 5. A Defined Post-Extrusion Procedure
-
-The filling workflow also addresses what happens after the motor stops. Retracting the plunger-contact interface releases the pushing contact and allows passive relaxation of the syringe–fluid system.
-
-The oil-based experiments used a standardized **3-minute post-release waiting interval**, making post-extrusion handling part of the validated procedure.
-
-Figures 1, 4, and 5 illustrate the prototype and mechanical interfaces; Figures 7–9 show the guided user interface; and Figure 10 presents the viscosity-dependent compensation map.
-
-**The reported accuracy applies to the tested configuration and laboratory conditions. Changes to the syringe, cannula, fluid, or operating conditions require appropriate calibration and validation.**
+Figures 1, 4, and 5 show the physical implementation and modular interfaces; Figures 7–9 illustrate guided operation; Figure 10 and the validation tables explain the compensation strategy and measured results.
 
 ## My Contributions
 
@@ -143,6 +140,22 @@ where $\mu$ is dynamic viscosity, $L_c$ is cannula length, $Q$ is volumetric flo
 **Figure 3 explains why actuator motion must account for the fluid path.** Increasing viscosity or flow rate increases the predicted pressure demand, while decreasing cannula radius has a particularly strong effect because of the fourth-power dependence. The pressure and force-transmission analysis informed feasible plunger motion and mechanical loading.
 
 Python-based numerical evaluation supported parameter selection before hardware implementation. Defined acceleration and deceleration phases were used to avoid abrupt motion changes. The simplified model supported engineering decisions; it was not an exact predictor of transient pressure or delivered volume.
+
+### Viscosity-Adaptive Motion Planning
+
+<p align="center">
+  <img src="Images/13_Adaptive_Motion_Concept.png" alt="Conceptual volume and flow profiles illustrating different dispensing durations and flow rates for increasing viscosity" width="700">
+</p>
+
+*Conceptual illustration supplied by the author: viscosity-dependent volume and flow profiles. The curves illustrate the planning principle; their numerical values are not experimental results or a quantitative model-validation plot.*
+
+**The same target volume can require different motion profiles for different fluid conditions.** The upper panel illustrates accumulated volume approaching a similar target over different durations. The lower panel illustrates the corresponding flow-rate concept, including gradual increases and decreases rather than abrupt starts and stops.
+
+The intended progression from blue and orange to green and red represents increasing viscosity. Within the modeled load constraints, a higher-viscosity fluid can require a lower planned flow rate and a longer dispensing time. For a fixed syringe cross-section, this corresponds to adapting plunger velocity and the acceleration and deceleration phases.
+
+In RheoPilot, this adaptation occurs **before extrusion**, using the entered viscosity, target volume, configured geometry, and calibrated compensation settings. Here, “adaptive” means **parameter-dependent motion planning**. Direct outlet-flow or pressure measurements do not update the command during execution.
+
+Motion-profile selection determines how the delivery is performed; the compensation map in Section 6 corrects the relationship between commanded displacement and measured delivered volume.
 
 ## 3. Mechanical Design, DFM, and DfAM
 
@@ -277,11 +290,38 @@ At **30,000 mPa·s**, a reference test without this release step still showed a 
 
 This comparison demonstrates why post-motion handling belongs to the process design. It should not be interpreted as an isolated tenfold reduction in the complete filling-cycle duration.
 
-## Scope and Limitations
+## Future Development and Application Scenarios
 
-The results describe a **laboratory prototype under defined experimental conditions**. The calibration trials and the intermediate validation serve different purposes and should not be treated as proof of ±1% performance for every viscosity, fluid, target volume, or geometry.
+RheoPilot provides a basis for extending a single filling operation into **programmable, time-scheduled fluid and material delivery**. A promising next step is to combine its viscosity-dependent dispensing method with the scheduling, sensor–actuator integration, touchscreen configuration, and fault-recovery experience developed in my project thesis on an automated biomedical test bench.
 
-Direct pressure and outlet-flow feedback were not implemented. Changing the syringe, cannula, material properties, or operating conditions may require renewed calibration and validation. The qualification structure provides an engineering evaluation framework rather than medical-device certification.
+### Scheduled Dosing for Pharmaceutical and Biomedical Research
+
+A future version could let users define **volume per dose, delivery interval, number of cycles, and dispensing duration**. The controller could then execute repeated dosing sequences and display the next scheduled event, completed cycles, and cumulative commanded volume.
+
+Potential applications include reagent addition, repeated dosing in in-vitro experiments, and laboratory evaluation of drug-delivery schedules. A non-blocking scheduler would allow timing, user interaction, and process monitoring to operate together. Any extension to patient-facing drug delivery would require dedicated safety engineering and application-specific validation.
+
+### Timed Material Feeding for Manufacturing Experiments
+
+The platform could also be extended to deliver defined quantities of oils, silicone components, or other process materials at programmed times or in response to an external trigger.
+
+Possible scenarios include repeated cavity filling, intermittent material addition, and synchronized feeding within a laboratory manufacturing setup. Material compatibility, the usable processing time of reactive materials, and the syringe–outlet configuration would guide the required hardware and control changes.
+
+### Integration with Automated Test Platforms
+
+Combining RheoPilot with a test-bench controller could coordinate dispensing with other experimental steps, such as pump operation, incubation periods, sensor acquisition, or sample preparation.
+
+| Future capability | Relevant experience from the project thesis | Intended use |
+|---|---|---|
+| Scheduled delivery cycles | Non-blocking timing and automated cycle execution | Repeated doses or material additions at defined intervals. |
+| Configurable experiment recipes | Touchscreen UI and parameter handling | User-defined volumes, intervals, and cycle counts. |
+| Coordinated equipment operation | Sensor–actuator integration | Dispensing synchronized with other laboratory devices. |
+| Monitored unattended operation | Communication-failure recovery and long-duration testing | Detecting faults and managing interruptions during repeated experiments. |
+
+### Development Priorities
+
+Further work would include repeated-dose accuracy testing, cumulative delivery assessment, refill handling, interruption and restart behavior, and timestamped event logging. Actual cumulative delivery would need measurement-based verification rather than relying only on the sum of commanded doses. Additional pressure, flow, or gravimetric sensing could support future delivery verification and feedback control.
+
+**These are proposed extensions.** The current quantitative results apply to the tested single-delivery configuration; new fluids, geometries, schedules, and application scenarios would require their own calibration and validation.
 
 ## Outcome and Technical Skills
 
