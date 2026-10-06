@@ -144,7 +144,7 @@ Python-based numerical evaluation supported parameter selection before hardware 
 ### Viscosity-Adaptive Motion Planning
 
 <p align="center">
-  <img src="Images/13_Adaptive_Motion_Concept.png" alt="Conceptual volume and flow profiles illustrating different dispensing durations and flow rates for increasing viscosity" width="700">
+  <img src="Images/13_Adaptive_Motion_Concept_Horizontal.png" alt="Conceptual volume and flow profiles illustrating different dispensing durations and flow rates for increasing viscosity" width="700">
 </p>
 
 *Conceptual illustration supplied by the author: viscosity-dependent volume and flow profiles. The curves illustrate the planning principle; their numerical values are not experimental results or a quantitative model-validation plot.*
