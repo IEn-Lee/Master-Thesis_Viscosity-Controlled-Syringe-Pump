@@ -18,193 +18,223 @@ Institute for Factory Automation and Production Systems (FAPS)
 
 ## Overview
 
-This master's thesis focused on the development of a **viscosity-controlled syringe pump for precise filling of a urological implant with high-viscosity oils**.
+This master's thesis developed a **viscosity-controlled syringe pump for precise filling of a urological implant with high-viscosity oils**. The platform combines physical modeling, mechanical design, embedded control, sensor–actuator integration, a touchscreen interface, and experimental calibration in a working laboratory prototype.
 
-The work combined:
+The investigated fluids spanned approximately **1–60,000 mPa·s**, from water to high-viscosity silicone oils. The system was developed around **B. Braun Injekt Luer Lock Solo 2 mL syringes** and a narrow cannula, with a validation target of **1 mL delivery within ±1% volumetric deviation** under defined laboratory conditions.
 
-- fluid-mechanical modeling
-- mechanical and mechatronic design
-- stepper-motor actuation
-- embedded C/C++ control
-- graphical user-interface development
-- viscosity-dependent compensation
-- prototype fabrication
-- quantitative laboratory validation
+<p align="center">
+  <img src="Images/01_Prototype_CAD_and_Hardware.png" alt="CAD installation reference beside the assembled syringe-pump prototype" width="760">
+</p>
 
-The developed platform was designed to dispense fluids with viscosities ranging from approximately **1 to 60,000 mPa·s** through a narrow cannula while maintaining repeatable volumetric delivery.
+*Figure 1. From CAD to a test-ready prototype. Left: installation reference. Right: the assembled syringe pump used for experimental evaluation. Source: original thesis Figure 39.*
 
----
+**Key results**
 
-## Background
+- **Calibrated conditions:** maximum absolute volumetric deviation of **0.62%** across the reported trials at 1, 5,000, 30,000, and 60,000 mPa·s.
+- **Intermediate validation:** at a nominal **40,000 mPa·s**, which was not a calibration point, **all five trials met the ±1% tolerance** using interpolated parameters without additional manual retuning.
+- **Validation accuracy:** maximum absolute deviation of **0.93%** and mean absolute deviation of **0.72%** at that intermediate condition.
+- **Post-extrusion handling:** retracting the plunger-contact interface enabled a standardized **3-minute post-release waiting interval** for the oil-based tests.
 
-Stress urinary incontinence has a substantial impact on quality of life and creates a significant burden on healthcare systems.
+## Why This Research Was Needed
 
-To address limitations of existing treatment approaches, research at FAU has investigated an **intraurethral implant for the treatment of urinary incontinence**. The implant concept is intended to provide a minimally invasive treatment approach and requires precise filling of an internal component with high-viscosity oil.
+The application concerns an intraurethral implant concept investigated at FAU for the treatment of urinary incontinence. Precise filling of an internal implant component with high-viscosity oil creates a demanding fluid-handling task.
 
-The filling process presents several engineering challenges. Increasing fluid viscosity and decreasing flow-path dimensions result in higher hydraulic resistance, while syringe mechanics, structural compliance, friction, and delayed material release can introduce deviations between commanded actuator motion and the actually delivered volume.
+A motorized syringe cannot be assumed to deliver exactly the volume implied by its commanded plunger displacement. High hydraulic resistance, syringe compliance, plunger friction, structural deformation, and delayed material release can all affect the final output. These effects become particularly relevant when viscous oils are extruded through a narrow cannula.
 
-This thesis therefore addressed the filling process as a coupled **actuator–structure–fluid system** rather than as a purely kinematic syringe-pump problem.
+The research therefore addressed a coupled **actuator–structure–fluid system**. Its objective was to connect the filling requirement to a mechanically stable device, executable motion parameters, viscosity-dependent compensation, and a reproducible measurement procedure.
 
----
+## My Contributions
 
-## Research Objective
+- Developed a fluid-mechanical model and used Python for numerical evaluation of viscosity-dependent operating constraints.
+- Designed the syringe fixation, plunger-contact interface, guidance, actuator mounting, and transmission interfaces in CAD.
+- Applied **DFM and DfAM considerations**, including assembly clearances, printed-part tolerances, modular interfaces, and replaceable components.
+- Integrated stepper-motor actuation, motor-driver electronics, electrical monitoring, embedded C/C++ software, and a touchscreen interface.
+- Implemented **model-based open-loop compensation** using calibrated motion parameters and monotonic interpolation.
+- Fabricated and assembled the prototype, conducted gravimetric experiments, and evaluated an intermediate condition excluded from calibration.
 
-The objective of the thesis was to develop and experimentally validate a syringe-pump platform capable of accurately dispensing high-viscosity oils into the implant.
+## 1. System Architecture and Integration
 
-The system was developed around **B. Braun Injekt Luer Lock Solo 2 mL syringes** and was designed to support an efficient and repeatable laboratory workflow.
+<p align="center">
+  <img src="Images/02_System_Architecture.png" alt="Five functional subsystems: mechanics, drive and actuation, control and compensation, user interface and guidance, and validation" width="800">
+</p>
 
-The main engineering tasks included:
+*Figure 2. Functional decomposition of the syringe-pump platform. Source: original thesis Figure 16.*
 
-### 1. Mechanical System Development
+The architecture connects five engineering functions:
 
-Development of the complete syringe-pump mechanism, including:
+| Subsystem | Role in the filling process |
+|---|---|
+| Mechanical structure | Positions the syringe, supports the actuator, and guides the moving plunger-contact element. |
+| Drive and actuation | Transfers motor rotation through the transmission and leadscrew into linear plunger displacement. |
+| Control and compensation | Converts target volume and viscosity into executable, compensated motion commands. |
+| User interface and guidance | Supports parameter entry, confirmation, process monitoring, and operator guidance. |
+| Validation | Measures delivered volume and evaluates accuracy and repeatability under documented conditions. |
 
-- syringe fixation
-- actuator mounting
-- linear guidance
-- transmission design
-- plunger-contact interface
-- modular and replaceable components
-- CAD-based mechanical development
-- prototype fabrication and assembly
+This structure made **system integration** central to the project: the model, hardware, firmware, interface, and measurement workflow had to operate consistently together.
 
-Design decisions considered alignment, manufacturability, assembly, dimensional tolerances, and repeatable syringe positioning.
+## 2. Fluid-Mechanical Modeling and Motion Planning
 
----
+<p align="center">
+  <img src="Images/03_Syringe_Cannula_Model.png" alt="Syringe–cannula model showing plunger displacement, plunger velocity, volumetric flow, and cannula pressure drop" width="800">
+</p>
 
-### 2. Fluid-Mechanical Modeling
+*Figure 3. Simplified syringe–cannula model linking actuator motion to fluid flow and pressure demand. Source: original thesis Figure 5.*
 
-A simplified syringe–cannula model was developed to relate:
-
-- fluid viscosity
-- syringe geometry
-- cannula geometry
-- volumetric flow rate
-- pressure demand
-- actuator motion
-
-For an idealized Newtonian flow through the cannula, the Hagen–Poiseuille relation was used as a first-order description of the pressure loss:
+The model relates plunger displacement and velocity to delivered displacement volume and volumetric flow. For idealized Newtonian flow through a cylindrical cannula, the Hagen–Poiseuille relation provides a first-order pressure-loss estimate:
 
 $$
-\Delta p_c = \frac{8 \mu L_c Q}{\pi r_c^4}
+\Delta p_c = \frac{8\mu L_c Q}{\pi r_c^4}
 $$
 
-where:
+where $\mu$ is dynamic viscosity, $L_c$ is cannula length, $Q$ is volumetric flow rate, and $r_c$ is cannula inner radius.
 
-- $\mu$ = dynamic viscosity
-- $L_c$ = cannula length
-- $Q$ = volumetric flow rate
-- $r_c$ = cannula inner radius
+**Figure 3 explains why actuator motion must account for the fluid path.** Increasing viscosity or flow rate increases the predicted pressure demand, while decreasing cannula radius has a particularly strong effect because of the fourth-power dependence. The pressure and force-transmission analysis informed feasible plunger motion and mechanical loading.
 
-The model was used to support actuator and motion-parameter selection rather than as an exact transient pressure predictor.
+Python-based numerical evaluation supported parameter selection before hardware implementation. Defined acceleration and deceleration phases were used to avoid abrupt motion changes. The simplified model supported engineering decisions; it was not an exact predictor of transient pressure or delivered volume.
 
----
+## 3. Mechanical Design, DFM, and DfAM
 
-### 3. Embedded Control and User Interface
+<p align="center">
+  <img src="Images/04_Mechanical_Assembly.png" alt="Two CAD perspectives showing the syringe fixation, moving contact element, actuator support, and transmission" width="760">
+</p>
 
-The system was controlled using an **Arduino GIGA R1 WiFi** with embedded C/C++ software.
+*Figure 4. Mechanical subsystem viewed from two perspectives. Source: original thesis Figure 17.*
 
-The control architecture included:
+The CAD assembly makes the force path and component interfaces visible. The **orange fixation** locates the syringe; the **purple moving element** contacts its plunger; the guide structure supports linear travel; and the **green frame section** supports the actuator. The gear and leadscrew arrangement converts motor rotation into plunger displacement.
 
-- stepper-motor control
-- motion-parameter generation
-- viscosity and target-volume input
-- process-duration calculation
-- motor-driver communication
-- viscosity-dependent compensation
-- process monitoring
-- touchscreen-based user interaction
+The design priorities were axial alignment, repeatable syringe positioning, stable guidance, and practical assembly. Manufacturing and assembly considerations included:
 
-The actuation system used a **NEMA 23 stepper motor** and a **TMC5160-based motor-driver architecture**.
+- **Tolerance-aware contact:** clearance at the plunger-contact interface accommodates small alignment and dimensional deviations without rigidly locking the syringe plunger to the actuator.
+- **Defined sliding interfaces:** a sliding bearing and stainless-steel guide rod reduce dependence on the surface quality of printed parts.
+- **Modular construction:** replaceable printed components and defined interfaces support fabrication, maintenance, and iterative refinement.
+- **Practical assembly:** leadscrew clearances, mounting features, and accessible component interfaces support repeatable installation.
 
-A graphical interface was developed using **LVGL** to support routine operation and parameter configuration.
+<p align="center">
+  <img src="Images/05_Quick_Release_Syringe_Fixture.png" alt="Annotated syringe fixation with snap-fit, semi-enclosing support, barrel flange contour, leadscrew slot, and mounting holes" width="680">
+</p>
 
----
+*Figure 5. Quick-release syringe fixation and locating features. Source: original thesis Figure 19.*
 
-### 4. Viscosity-Dependent Compensation
+**The fixation in Figure 5 supports both repeatability and efficient syringe exchange.** A snap-fit enables insertion and removal, while the semi-enclosing support and barrel-flange contour resist unwanted displacement and tilting. The design avoids unnecessary over-constraint of the disposable syringe. The cannula connects directly through the syringe's standardized Luer Lock interface.
 
-Because commanded plunger displacement does not directly correspond to delivered volume under all fluid conditions, an experimentally calibrated compensation strategy was implemented.
+## 4. Actuation, Embedded Control, and Sensor Integration
 
-Calibration conditions were established across the investigated viscosity range and used to construct a **monotonic interpolation map** for viscosity-dependent motion compensation.
+The actuation system combines a **NEMA 23 stepper motor**, a **custom TMC5160-TA-based motor-driver board**, and leadscrew-driven linear motion. An **Arduino GIGA R1 WiFi** provides the main embedded controller, with embedded C/C++ software handling parameter processing, motion execution, driver communication, and user interaction.
 
-This enabled the system to estimate appropriate actuator parameters for intermediate viscosity conditions without requiring manual retuning for every new fluid.
+<p align="center">
+  <img src="Images/06_Motor_Driver_Board.png" alt="Custom motor-driver board integrating the TMC5160-TA and electrical monitoring hardware" width="720">
+</p>
 
----
+*Figure 6. Motor-driver electronics integrated into the syringe-pump platform. Source: original thesis Figure 25.*
 
-### 5. Experimental Validation
+**INA228-based electrical measurements** and motor-driver information support motor-side status monitoring. These functions connect sensing, actuation, and process visualization within the integrated system.
 
-The completed system was assembled and validated under controlled laboratory conditions.
+The extrusion strategy is **model-based open-loop control**: motion parameters are calculated and compensated before execution. The prototype does not use direct outlet-flow or pressure feedback to correct delivery during a run. Electrical monitoring and driver status therefore support process visibility without constituting closed-loop volumetric control.
 
-The validation workflow included:
+## 5. Touchscreen Interface and Operator Workflow
 
-- controlled syringe and cannula configuration
-- gravimetric measurement of delivered fluid
-- repeated extrusion trials
-- calculation of volumetric deviation
-- calibration of systematic deviations
-- validation at an intermediate viscosity not used during calibration
+The touchscreen interface separates routine filling tasks from advanced configuration. Routine operation focuses on viscosity and target volume; advanced access supports development, calibration, and manual motor functions.
 
-The development and validation process followed the institute's quality-management framework for medical-device research.
+<p align="center">
+  <img src="Images/07_GUI_Routine_and_Advanced.png" alt="Routine viscosity and volume input screen beside the advanced developer information screen" width="900">
+</p>
 
----
+*Figure 7. Routine input screen on the left and advanced information access on the right. Source: original thesis Figure 33.*
 
-## Engineering Workflow
+**Figure 7 shows how the interface limits the complexity of normal operation** while preserving access to configuration parameters needed during research. Additional screens provide parameter customization, manual motor control, input warnings, and tab-specific help.
 
-The project followed a complete model-to-hardware development process:
+<p align="center">
+  <img src="Images/08_GUI_Confirmation_and_Monitoring.png" alt="Pre-extrusion confirmation dialog beside the active process monitoring screen" width="900">
+</p>
 
-**Physical modeling**  
-↓  
-**Numerical evaluation**  
-↓  
-**Mechanical and actuator design**  
-↓  
-**Embedded control implementation**  
-↓  
-**Prototype fabrication and integration**  
-↓  
-**Experimental calibration**  
-↓  
-**Quantitative validation**
+*Figure 8. Pre-extrusion confirmation and process-state monitoring. Source: original thesis Figure 35.*
 
----
+Before motion starts, the confirmation dialog summarizes the intended filling operation. During extrusion, the progress view displays process information such as elapsed and remaining duration, distance, and progress. These displays communicate the planned or reported motion state; they are not direct measurements of outlet volume.
 
-## Technical Areas
+<p align="center">
+  <img src="Images/09_GUI_Protected_Operation.png" alt="Stop confirmation dialog and advanced controls disabled during active extrusion" width="900">
+</p>
 
-### Mechanical & Mechatronic Systems
+*Figure 9. Protected interaction during active extrusion. Source: original thesis Figure 36.*
 
-- CAD and mechanical design
-- Precision actuation
-- DFM / DfAM
-- Modular prototyping
-- Additive manufacturing
-- Mechanical integration
+A stop-confirmation dialog reduces accidental interruption, and selected advanced controls are disabled during active extrusion to prevent unintended changes. The interface was reviewed qualitatively against **Nielsen's 10 usability heuristics** as part of prototype design qualification.
 
-### Control & Embedded Systems
+## 6. Viscosity-Dependent Calibration and Compensation
 
-- Embedded C/C++
-- Stepper-motor control
-- Model-based open-loop compensation
-- Motor-driver integration
-- Motion-parameter generation
-- Process monitoring
-- LVGL graphical interface
+Uncompensated experiments showed repeatable but viscosity-dependent under-delivery for the oils. This supported correcting a systematic process offset through an **effective motion scale**, which adjusts the relationship between commanded actuator motion and delivered volume.
 
-### Modeling & Computation
+Four conditions were used as calibration anchors: **1, 5,000, 30,000, and 60,000 mPa·s**. A monotonic interpolation map was constructed in the **logarithmic viscosity domain** to estimate compensation between these anchors.
 
-- Python
-- Fluid-mechanical modeling
-- Viscosity-dependent system modeling
-- Numerical evaluation
-- Monotonic interpolation
-- Model-based parameter estimation
+<p align="center">
+  <img src="Images/10_Viscosity_Compensation_Map.png" alt="Monotonic compensation curve through four calibration anchors with an interpolated point at 40,000 mPa seconds" width="850">
+</p>
 
-### Experimental Engineering
+*Figure 10. Viscosity-dependent effective motion scale and the interpolated validation setting. Source: original thesis Figure 44.*
 
-- Biomedical device prototyping
-- Fluid handling
-- Calibration
-- Gravimetric measurement
-- Repeated experimental trials
-- Quantitative validation
+**How to read Figure 10:** the anchor points represent experimentally calibrated settings, and the curve estimates the effective motion scale between them. The highlighted **40,000 mPa·s** point gives a predicted scale of **41,001.71**. That value was obtained from interpolation, not from an additional manual calibration at the validation condition.
 
----
+The effective motion scale is a firmware compensation quantity, not a directly measured fluid property. Its relationship with viscosity is specific to the investigated hardware and process conditions.
+
+## 7. Experimental Validation and Quantitative Results
+
+The evaluation followed a **DQ/IQ/OQ/PQ-inspired structure**, covering design requirements, installation readiness, operational behavior, and compensated performance.
+
+### Measurement Conditions
+
+- Nominal target volume: **1 mL**.
+- Laboratory temperature: approximately **23 °C**.
+- Fixed syringe type and cannula configuration; syringes used once.
+- Gravimetric measurement using a **KERN PCD balance**.
+- For water, measurement of the collected mass; for oils, measurement of syringe mass before and after extrusion.
+- Mass-to-volume conversion using the specified fluid density.
+- For oil-based trials, retraction of the plunger-contact interface followed by a standardized **3-minute post-release waiting interval**.
+
+### Calibration Results
+
+| Viscosity [mPa·s] | Baseline mean absolute deviation [%] | Calibrated mean absolute deviation [%] | Calibrated maximum absolute deviation [%] |
+|---:|---:|---:|---:|
+| 1 | 0.20 | 0.20 | 0.30 |
+| 5,000 | 6.43 | 0.45 | 0.62 |
+| 30,000 | 20.45 | 0.19 | 0.31 |
+| 60,000 | 30.31 | 0.36 | 0.52 |
+
+*Source: original thesis Tables 9 and 10; five reported trials per condition. These calibrated results were used for compensation-parameter selection.*
+
+The baseline deviations increased with viscosity, while within-condition variation remained relatively small. Calibration reduced the reported absolute deviations, establishing the anchor settings used in the interpolation map.
+
+### Validation at an Intermediate Viscosity
+
+A nominal **40,000 mPa·s** condition, prepared by mixing the 30,000 and 60,000 mPa·s oils, was reserved for validation. The interpolated setting was applied **without additional manual retuning**.
+
+| Validation metric | Result |
+|---|---:|
+| Repeated trials | 5 |
+| Trials within ±1% volumetric deviation | 5 / 5 |
+| Mean absolute volumetric deviation | 0.72% |
+| Maximum absolute volumetric deviation | 0.93% |
+
+*Source: original thesis Table 11.*
+
+This result supports the feasibility of interpolation-based compensation at an intermediate condition within the tested range and setup.
+
+### Why Post-Extrusion Release Matters
+
+Stopping the motor does not immediately eliminate residual loading and delayed fluid response. Because the plunger is not rigidly coupled to the moving contact element, retracting that element releases the pushing contact and allows passive relaxation.
+
+At **30,000 mPa·s**, a reference test without this release step still showed a mean absolute deviation of **8.53%** after **30 minutes**, with a **5.70-percentage-point** range between trials. The standard oil-based protocol incorporated release and a **3-minute** waiting interval.
+
+This comparison demonstrates why post-motion handling belongs to the process design. It should not be interpreted as an isolated tenfold reduction in the complete filling-cycle duration.
+
+## Scope and Limitations
+
+The results describe a **laboratory prototype under defined experimental conditions**. The calibration trials and the intermediate validation serve different purposes and should not be treated as proof of ±1% performance for every viscosity, fluid, target volume, or geometry.
+
+Direct pressure and outlet-flow feedback were not implemented. Changing the syringe, cannula, material properties, or operating conditions may require renewed calibration and validation. The qualification structure provides an engineering evaluation framework rather than medical-device certification.
+
+## Outcome and Technical Skills
+
+The work established an integrated workflow from **physical modeling and numerical evaluation to mechanical design, embedded implementation, prototype assembly, calibration, and experimental validation**.
+
+Its main contribution is a working filling platform that combines viscosity-dependent motion planning with experimentally calibrated compensation and a defined post-extrusion procedure.
+
+**Keywords:** Precision Fluid Handling · High-Viscosity Dispensing · Fluid-Mechanical Modeling · Mechanical Design · DFM · DfAM · Embedded C/C++ · System Integration · Sensor–Actuator Integration · Model-Based Open-Loop Compensation · Touchscreen UI · Experimental Validation
