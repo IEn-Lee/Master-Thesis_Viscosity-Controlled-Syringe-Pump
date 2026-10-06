@@ -149,7 +149,7 @@ Python-based numerical evaluation supported parameter selection before hardware 
 
 *Conceptual illustration supplied by the author: viscosity-dependent volume and flow profiles. The curves illustrate the planning principle; their numerical values are not experimental results or a quantitative model-validation plot.*
 
-**The same target volume can require different motion profiles for different fluid conditions.** The upper panel illustrates accumulated volume approaching a similar target over different durations. The lower panel illustrates the corresponding flow-rate concept, including gradual increases and decreases rather than abrupt starts and stops.
+**The same target volume can require different motion profiles for different fluid conditions.** The left panel illustrates accumulated volume approaching a similar target over different durations. The right panel illustrates the corresponding flow-rate concept, including gradual increases and decreases rather than abrupt starts and stops.
 
 The intended progression from blue and orange to green and red represents increasing viscosity. Within the modeled load constraints, a higher-viscosity fluid can require a lower planned flow rate and a longer dispensing time. For a fixed syringe cross-section, this corresponds to adapting plunger velocity and the acceleration and deceleration phases.
 
