@@ -292,7 +292,7 @@ This comparison demonstrates why post-motion handling belongs to the process des
 
 ## Future Development and Application Scenarios
 
-RheoPilot provides a basis for extending a single filling operation into **programmable, time-scheduled fluid and material delivery**. A promising next step is to combine its viscosity-dependent dispensing method with the scheduling, sensor–actuator integration, touchscreen configuration, and fault-recovery experience developed in my project thesis on an automated biomedical test bench.
+RheoPilot provides a basis for extending a single filling operation into **programmable, time-scheduled fluid and material delivery**. A promising next step is to combine its viscosity-dependent dispensing method with the scheduling, sensor–actuator integration, touchscreen configuration, and fault-recovery experience developed in my [project thesis](https://github.com/IEn-Lee/Endourological-Test-Bench-Embedded-Control) on an automated biomedical test bench.
 
 ### Scheduled Dosing for Pharmaceutical and Biomedical Research
 
